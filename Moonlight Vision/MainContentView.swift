@@ -1,6 +1,7 @@
 //
 
 import SwiftUI
+import RealityKit
 
 struct MainContentView: View {
     @EnvironmentObject private var viewModel: MainViewModel
@@ -10,7 +11,7 @@ struct MainContentView: View {
     @State private var addingHost = false
     @State private var newHostIp = ""
     @State private var dimPassthrough = true
-    
+
     var body: some View {
         if viewModel.activelyStreaming {
             ZStack {
@@ -118,6 +119,10 @@ struct MainContentView: View {
             
                 SettingsView(settings: $viewModel.streamSettings).tabItem {
                     Label("Settings", systemImage: "gear")
+                }
+                
+                ImmersiveViews().tabItem {
+                    Label("Immersive", systemImage: "visionpro")
                 }
             }
         }

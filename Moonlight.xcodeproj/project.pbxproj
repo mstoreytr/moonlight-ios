@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1AB14D962B794F2500EC07C4 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 1AB14D952B794F2500EC07C4 /* RealityKitContent */; };
+		1AB14D982B796A5F00EC07C4 /* ImmersiveViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB14D972B796A5F00EC07C4 /* ImmersiveViews.swift */; };
+		1AB14D9A2B796C3D00EC07C4 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 1AB14D992B796C3D00EC07C4 /* Collections */; };
 		693B3A9B218638CD00982F7B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 693B3A9A218638CD00982F7B /* Settings.bundle */; };
 		98181BE92791277400E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BE82791275D00E43572 /* libSDL2.a */; };
 		98181BEB2791278F00E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BEA2791278300E43572 /* libSDL2.a */; };
@@ -252,6 +255,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1AB14D972B796A5F00EC07C4 /* ImmersiveViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImmersiveViews.swift; sourceTree = "<group>"; };
 		566E9D2B2770B23A00EF7BFE /* Moonlight v1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.7.xcdatamodel"; sourceTree = "<group>"; };
 		693B3A9A218638CD00982F7B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9803CCAB254F9EAF00EE185E /* ConnectionCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConnectionCallbacks.h; sourceTree = "<group>"; };
@@ -507,6 +511,8 @@
 				F7A119432B5DDF73001E8686 /* CoreGraphics.framework in Frameworks */,
 				F7A119442B5DDF73001E8686 /* CoreData.framework in Frameworks */,
 				F7A119F62B5DE71C001E8686 /* libavutil.a in Frameworks */,
+				1AB14D9A2B796C3D00EC07C4 /* Collections in Frameworks */,
+				1AB14D962B794F2500EC07C4 /* RealityKitContent in Frameworks */,
 				F718014F2B657DB600A9336B /* OrderedCollections in Frameworks */,
 				F7A11A1E2B5DF457001E8686 /* UIKit.framework in Frameworks */,
 				F7A119452B5DDF73001E8686 /* CoreMotion.framework in Frameworks */,
@@ -616,6 +622,7 @@
 				F7A4A4D02B5F216C001591F3 /* MainViewModel.swift */,
 				F778956D2B65975900F02568 /* SDLMainWrapper.m */,
 				F778956F2B65979500F02568 /* SDLMainWrapper.h */,
+				1AB14D972B796A5F00EC07C4 /* ImmersiveViews.swift */,
 			);
 			path = "Moonlight Vision";
 			sourceTree = "<group>";
@@ -1052,6 +1059,8 @@
 			packageProductDependencies = (
 				F77B58A82B5EED5900482BD5 /* OpenSSL */,
 				F718014E2B657DB600A9336B /* OrderedCollections */,
+				1AB14D952B794F2500EC07C4 /* RealityKitContent */,
+				1AB14D992B796C3D00EC07C4 /* Collections */,
 			);
 			productName = Limelight;
 			productReference = F7A119552B5DDF73001E8686 /* Moonlight Vision.app */;
@@ -1251,6 +1260,7 @@
 				F7A119302B5DDF73001E8686 /* HttpRequest.m in Sources */,
 				F7A119312B5DDF73001E8686 /* OnScreenControls.m in Sources */,
 				F7A119332B5DDF73001E8686 /* X1Kit.swift in Sources */,
+				1AB14D982B796A5F00EC07C4 /* ImmersiveViews.swift in Sources */,
 				F7A119342B5DDF73001E8686 /* AppAssetManager.m in Sources */,
 				F7A119352B5DDF73001E8686 /* DiscoveryWorker.m in Sources */,
 				F7A119362B5DDF73001E8686 /* ControllerSupport.m in Sources */,
@@ -1960,6 +1970,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1AB14D952B794F2500EC07C4 /* RealityKitContent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RealityKitContent;
+		};
+		1AB14D992B796C3D00EC07C4 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F718014D2B657DB600A9336B /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
 		F718014E2B657DB600A9336B /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F718014D2B657DB600A9336B /* XCRemoteSwiftPackageReference "swift-collections" */;
