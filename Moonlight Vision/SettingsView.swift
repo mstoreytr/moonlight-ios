@@ -4,48 +4,52 @@ import SwiftUI
 
 struct SettingsView: View {
     @Binding public var settings: TemporarySettings
-    
-    // TODO: round trip these to the raw settings values lol
-    @State public var resolutionIndex: Int = 3
-    
-    @State public var framerateIndex: Int = 2
-    
-    @State public var bitrateIndex: Int = 7
-    
-    @State public var customWidth: Int = 0
-    @State public var customHeight: Int = 0
-    
+
     var body: some View {
         NavigationStack {
             Form {
-                Picker("Resolution", selection: $resolutionIndex) {
-                    Text("360p").tag(0)
-                    Text("720p").tag(1)
-                    Text("1080p").tag(2)
-                    Text("4K").tag(3)
-                }.onChange(of: resolutionIndex) {
-                    updateResolution()
+                NavigationLink {
+                    Form {
+                        Picker("Resolution", selection: $settings.resolution) {
+                            ForEach(Self.resolutionsGroupedByType, id: \.0) { aspectRatio, resolutions in
+                                ForEach(resolutions, id: \.self) { resolution in
+                                    Text(resolution.description)
+                                        .badge(aspectRatio.casualDescription)
+                                }
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.inline)
+                    }
+                    .ornament(attachmentAnchor: .scene(.bottom)) {
+                        HStack {
+                            TextField("Width", value: $settings.resolution.width, format: .number)
+                            Text("by")
+                            TextField("Height", value: $settings.resolution.height, format: .number)
+                        }
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.numberPad)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding()
+                        .glassBackgroundEffect()
+                    }
+                    .navigationTitle("Resolution")
+                } label: {
+                    HStack {
+                        Text("Resolution")
+                        Spacer()
+                        Text(settings.resolution.description)
+                    }
                 }
-                Picker("Framerate", selection: $framerateIndex) {
-                    Text("30").tag(0)
-                    Text("60").tag(1)
-                    Text("90").tag(2)
-                    Text("120").tag(3)
-                }.onChange(of: framerateIndex) {
-                    updateFramerate()
+                Picker("Framerate", selection: $settings.framerate) {
+                    ForEach(Self.framerateTable, id: \.self) { framerate in
+                        Text("\(framerate)")
+                    }
                 }
-                Picker("Bitrate", selection: $bitrateIndex) {
-                    Text("5Mbps").tag(0)
-                    Text("10Mbps").tag(1)
-                    Text("30Mbps").tag(2)
-                    Text("50Mbps").tag(3)
-                    Text("75Mbps").tag(4)
-                    Text("100Mbps").tag(5)
-                    Text("120Mbps").tag(6)
-                    Text("200Mbps").tag(7)
-                }
-                .onChange(of: bitrateIndex) {
-                    updateBitrate()
+                Picker("Bitrate", selection: $settings.bitrate) {
+                    ForEach(Self.bitrateTable, id: \.self) { bitrate in
+                        Text("\(bitrate / 1000)Mbps")
+                    }
                 }
                 Picker("Touch Mode", selection: $settings.absoluteTouchMode) {
                     Text("Touchpad").tag(false)
@@ -56,7 +60,6 @@ struct SettingsView: View {
                     Text("Auto").tag(OnScreenControlsLevel.auto)
                     Text("Simple").tag(OnScreenControlsLevel.simple)
                     Text("Full").tag(OnScreenControlsLevel.full)
-                    
                 }
                 Toggle("Optimize Game Settings", isOn: $settings.optimizeGames)
                 Picker("Multi-Controller Mode", selection: $settings.multiController) {
@@ -78,62 +81,125 @@ struct SettingsView: View {
                 }
                 Toggle("Citrix X1 Mouse Support", isOn: $settings.btMouseSupport)
                 Toggle("Statistics Overlay", isOn: $settings.statsOverlay)
-            }.frame(width: 450)
+            }
             .navigationTitle("Settings")
             .onDisappear {
                 settings.save()
             }
         }
+    .frame(width: 600)
     }
-    
-    static let customResolution = CGSize()
-    
-    // TODO: add custom resolutions
-    let resolutionTable = [CGSize(width: 640, height: 360), CGSize(width: 1280, height: 720), CGSize(width: 1920, height: 1080), CGSize(width: 3840, height: 2160)]
-    
-    let framerateTable = [30, 60, 90, 120]
-    
-    let bitrateTable = [5000, 10000, 30000, 50000, 75000, 100000, 120000, 200000]
-    
-    @MainActor func updateResolution() {
-        let resolution = resolutionTable[resolutionIndex]
-        if resolution == SettingsView.customResolution {
-            settings.width = Int32(customWidth)
-            settings.width = Int32(customHeight)
-        } else {
-            settings.width = Int32(resolution.width)
-            settings.height = Int32(resolution.height)
+}
+
+private extension TemporarySettings {
+    var resolution: SettingsView.Resolution {
+        get {
+            SettingsView.Resolution(width: Int(width), height: Int(height))
+        }
+        set {
+            width = Int32(newValue.width)
+            height = Int32(newValue.height)
         }
     }
-    
-    @MainActor func updateFramerate() {
-        settings.framerate = Int32(framerateTable[framerateIndex])
-    }
-    
-    @MainActor func updateBitrate() {
-        settings.bitrate = Int32(bitrateTable[bitrateIndex])
-    }
-    
-    @MainActor func initSettingsState() {
-        if let found = bitrateTable.enumerated().first(where: { $0.element == settings.bitrate }) {
-            bitrateIndex = found.offset
-        } else {
-            bitrateIndex = 0
+}
+
+extension SettingsView {
+    struct AspectRatio: Equatable, Hashable, Comparable {
+        // Always stored as reduced values
+        private let width: Int
+        private let height: Int
+
+        init(width: Int, height: Int) {
+            let reduced = simplifyFraction(numerator: width, denominator: height)
+            self.width = reduced.numerator
+            self.height = reduced.denominator
         }
-        
-        if let found = framerateTable.enumerated().first(where: { $0.element == settings.framerate }) {
-            framerateIndex = found.offset
-        } else {
-            framerateIndex = 0
+
+        var casualDescription: LocalizedStringKey {
+            switch self {
+            case AspectRatio(width: 16, height: 9):
+                "Widescreen (TV)"
+            case AspectRatio(width: 16, height: 10):
+                "Widescreen (PC)"
+            case AspectRatio(width: 4, height: 3):
+                "4:3"
+            case AspectRatio(width: 64, height: 27):
+                "Ultrawide (64:27)"
+            case AspectRatio(width: 43, height: 18):
+                "Ultrawide (43:18)"
+            case AspectRatio(width: 32, height: 9):
+                "Super-Ultrawide"
+            default:
+                "\(width)-by-\(height)"
+            }
         }
-        
-        if let found = resolutionTable.enumerated().first(where: { NSInteger($0.element.width) == settings.width && NSInteger($0.element.height) == settings.height }) {
-            resolutionIndex = found.offset
-        } else {
-            // last index is "custom"
-            resolutionIndex = resolutionTable.count - 1
+
+        // "Wider" means "larger"
+        static func < (lhs: SettingsView.AspectRatio, rhs: SettingsView.AspectRatio) -> Bool {
+            (Double(lhs.width) / Double(lhs.height)) < (Double(rhs.width) / Double(rhs.height))
         }
     }
+
+    struct Resolution: Equatable, Hashable, CustomStringConvertible {
+        var width: Int
+        var height: Int
+
+        var aspectRatio: AspectRatio {
+            AspectRatio(width: width, height: height)
+        }
+
+        var description: String {
+            switch self {
+            case Resolution(width: 3840, height: 2160):
+                "4K"
+            case _ where simplifyFraction(numerator: width, denominator: height) == simplifyFraction(numerator: 16, denominator: 9):
+                "\(height)p"
+            default:
+                "\(width)x\(height)"
+            }
+        }
+    }
+
+    static let resolutionTable = [
+        // 16:9
+        Resolution(width: 1280, height: 720),
+        Resolution(width: 1920, height: 1080),
+        Resolution(width: 2560, height: 1440),
+        Resolution(width: 3840, height: 2160),
+        // 16:10
+        Resolution(width: 1920, height: 1200),
+        Resolution(width: 2560, height: 1600),
+        // "21:9"
+        Resolution(width: 2560, height: 1080),
+        Resolution(width: 3440, height: 1440),
+        // 32:9
+        Resolution(width: 5120, height: 1440),
+    ]
+
+    static var resolutionsGroupedByType: [(AspectRatio, [Resolution])] {
+        Dictionary(grouping: resolutionTable, by: \.aspectRatio).sorted { $0.key < $1.key }
+    }
+
+    static let framerateTable: [Int32] = [30, 60, 90, 120]
+
+    static let bitrateTable: [Int32] = [5000, 10000, 30000, 50000, 75000, 100000, 120000, 200000]
+}
+
+// Functions to help with aspect ratio calculation
+private func gcd<I: BinaryInteger>(_ a: I, _ b: I) -> I {
+    var a = a
+    var b = b
+    while b != 0 {
+        let temp = b
+        b = a % b
+        a = temp
+    }
+    return a
+}
+
+private func simplifyFraction<I: BinaryInteger>(numerator: I, denominator: I) -> (numerator: I, denominator: I) {
+    let divisor = gcd(numerator, denominator)
+    return (numerator / divisor, denominator / divisor)
 }
 
 #Preview {
